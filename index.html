@@ -4,7 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CrossPoint EPUB Optimizer</title>
-  <link rel="stylesheet" href="./standalone.css?v=1">
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="./standalone.css?v=2">
   <script src="./local-shim.js"></script>
   <script src="./js/jszip.min.js"></script>
   <style>
@@ -3443,7 +3444,7 @@ function applyDeviceTarget() {
 
   const summary = document.getElementById('convertSizeSummary');
   if (summary) {
-    summary.textContent = `📏 Max ${profile.width}×${profile.height}px`;
+    summary.textContent = `Max ${profile.width} x ${profile.height} px`;
   }
   document.querySelectorAll('.device-btn').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.value === DEVICE_TARGET);
@@ -6173,6 +6174,6 @@ function retryAllFailedUploads() {
   }
   hydrate();
 </script>
-<script src="./local-overrides.js?v=3"></script>
+<script src="./local-overrides.js?v=4"></script>
 </body>
 </html>

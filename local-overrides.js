@@ -92,14 +92,11 @@
 
     const heading = document.querySelector('h1');
     if (heading) {
-      heading.textContent = 'CrossPoint EPUB Optimizer';
+      heading.textContent = 'Optimize EPUBs for CrossPoint';
+      heading.insertAdjacentHTML('beforebegin', '<span class="standalone-kicker">CrossPoint Reader utility</span>');
       heading.insertAdjacentHTML('afterend', `
-        <p class="standalone-intro">Prepare EPUB files for fast, reliable reading on CrossPoint devices.</p>
-        <div class="standalone-features" aria-label="Key features">
-          <span>Private, in-browser processing</span>
-          <span>X3 &amp; X4 profiles</span>
-          <span>Baseline grayscale JPEG</span>
-        </div>
+        <p class="standalone-intro">Resize images and prepare EPUB files for CrossPoint X3 and X4 readers. Processing happens in this browser.</p>
+        <p class="standalone-meta">EPUB in&nbsp;&nbsp;/&nbsp;&nbsp;optimized EPUB out</p>
       `);
     }
 
@@ -127,17 +124,17 @@
     }
 
     const modalHeading = document.querySelector('#uploadModal h3');
-    if (modalHeading) modalHeading.textContent = 'Optimize EPUBs for CrossPoint';
+    if (modalHeading) modalHeading.textContent = 'Choose your books';
 
     const pathInfo = document.querySelector('#uploadModal .file-info');
     if (pathInfo) {
       // Keep the hidden upstream element because the original modal helper references it.
-      pathInfo.innerHTML = 'Choose EPUB files below. They stay on this device while the browser optimizes and downloads them.<strong id="uploadPathDisplay" hidden></strong>';
+      pathInfo.innerHTML = 'Select one or more EPUB files. Each optimized copy downloads when it is ready.<strong id="uploadPathDisplay" hidden></strong>';
     }
 
     const fileInput = document.getElementById('fileInput');
     fileInput.accept = '.epub,application/epub+zip';
-    document.querySelector('.drop-zone-hint').textContent = 'Drop EPUB files here — or choose files';
+    document.querySelector('.drop-zone-hint').textContent = 'Drop EPUB files here or choose files';
 
     const originalToggle = window.toggleConvertOptions;
     window.toggleConvertOptions = function toggleConvertOptionsLocally() {
@@ -154,7 +151,59 @@
     optimizeCheckbox.disabled = true;
     restoreUploadSettingsFromStorage();
     optimizeCheckbox.checked = true;
-    optimizeCheckbox.closest('label').querySelector('span').textContent = 'Optimization enabled';
+    optimizeCheckbox.closest('label').querySelector('span').textContent = 'Output settings';
+
+    const advancedToggle = document.getElementById('advancedOptionsToggle');
+    advancedToggle.setAttribute('role', 'button');
+    advancedToggle.setAttribute('tabindex', '0');
+    advancedToggle.setAttribute('aria-controls', 'advancedSettingsContent');
+    advancedToggle.setAttribute('aria-expanded', 'false');
+    advancedToggle.querySelector('.advanced-options-text').textContent = 'Adjust options';
+    advancedToggle.addEventListener('keydown', event => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        advancedToggle.click();
+      }
+    });
+    advancedToggle.addEventListener('click', () => {
+      requestAnimationFrame(() => {
+        advancedToggle.setAttribute(
+          'aria-expanded',
+          document.getElementById('advancedSettingsContent').classList.contains('visible') ? 'true' : 'false'
+        );
+      });
+    });
+
+    const advancedSettings = document.getElementById('advancedSettingsContent');
+    const renameSetting = document.getElementById('renameFromMetadataToggle')?.closest('.advanced-setting-row');
+    if (renameSetting) advancedSettings.prepend(renameSetting);
+
+    document.getElementById('convertSettings').innerHTML = `
+      <span>Grayscale images</span>
+      <span id="convertSizeSummary">Max 480 x 800 px</span>
+      <span>85% JPEG</span>
+      <span>SVG fixes</span>
+    `;
+
+    const settingLabels = [
+      ['renameFromMetadataToggle', 'Rename from book metadata'],
+      ['autoCropToggle', 'Auto-crop margins'],
+      ['export-log-checkbox', 'Automatically download the conversion log'],
+      ['rememberUploadSettings', 'Remember settings in this browser']
+    ];
+    settingLabels.forEach(([id, label]) => {
+      document.getElementById(id)?.setAttribute('aria-label', label);
+    });
+
+    document.querySelector('.quality-row .setting-title').textContent = 'JPEG quality';
+    document.querySelector('#deviceSettingRow .setting-title').textContent = 'Target device';
+    document.querySelector('#rotationSettingRow .setting-title').textContent = 'Rotation direction';
+    document.querySelector('#overlapSettingRow .setting-title').textContent = 'Minimum overlap';
+    document.getElementById('autoCropToggle').closest('.advanced-setting-row').querySelector('.setting-title').textContent = 'Auto-crop margins';
+    document.querySelector('#log-section .log-title').textContent = 'Conversion log';
+
+    document.getElementById('progress-container').setAttribute('role', 'status');
+    document.getElementById('progress-container').setAttribute('aria-live', 'polite');
 
     document.getElementById('convertOptions').style.display = 'block';
     toggleConvertOptions();

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://epub.gs0.me/sitemap.xml

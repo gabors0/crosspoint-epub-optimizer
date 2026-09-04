@@ -84,11 +84,11 @@
   };
 
   document.addEventListener('DOMContentLoaded', () => {
-    document.title = 'CrossPoint EPUB Optimizer (Local)';
+    document.title = 'CrossPoint EPUB Optimizer for X3 and X4';
     document.body.classList.add('optimizer-only');
 
     const heading = document.querySelector('h1');
-    if (heading) heading.textContent = 'CrossPoint EPUB Optimizer (Local)';
+    if (heading) heading.textContent = 'CrossPoint EPUB Optimizer';
 
     const fileManagerCard = document.getElementById('file-table')?.closest('.card');
     if (fileManagerCard) fileManagerCard.style.display = 'none';

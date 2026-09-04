@@ -43,6 +43,8 @@
     const actionButton = document.getElementById('uploadBtn');
     progressContainer.style.display = 'block';
     actionButton.disabled = true;
+    const cancelButton = document.getElementById('localCancelButton');
+    if (cancelButton) cancelButton.style.display = 'block';
 
     try {
       for (let index = 0; index < files.length; index++) {
@@ -80,44 +82,92 @@
       document.getElementById('uploadModalClose').classList.remove('disabled');
       fileInput.disabled = false;
       actionButton.disabled = false;
+      if (cancelButton) cancelButton.style.display = 'none';
     }
   };
 
   document.addEventListener('DOMContentLoaded', () => {
-    document.title = 'CrossPoint EPUB Optimizer (Local)';
+    document.title = 'CrossPoint EPUB Optimizer';
+    document.body.classList.add('standalone-page');
 
     const heading = document.querySelector('h1');
-    if (heading) heading.textContent = 'CrossPoint EPUB Optimizer (Local)';
-
-    const uploadAction = document.querySelector('.upload-action-btn');
-    if (uploadAction) uploadAction.textContent = '📖 Open Optimizer';
-
-    document.querySelectorAll('.folder-action-btn, .delete-action-btn').forEach(el => {
-      el.style.display = 'none';
-    });
+    if (heading) {
+      heading.textContent = 'CrossPoint EPUB Optimizer';
+      heading.insertAdjacentHTML('afterend', `
+        <p class="standalone-intro">Prepare EPUB files for fast, reliable reading on CrossPoint devices.</p>
+        <div class="standalone-features" aria-label="Key features">
+          <span>Private, in-browser processing</span>
+          <span>X3 &amp; X4 profiles</span>
+          <span>Baseline grayscale JPEG</span>
+        </div>
+      `);
+    }
 
     const deviceNavigation = document.querySelector('.nav-links');
     if (deviceNavigation) deviceNavigation.style.display = 'none';
 
+    const fileManagerHeader = document.querySelector('.page-header');
+    if (fileManagerHeader) fileManagerHeader.style.display = 'none';
+
+    const failedUploads = document.getElementById('failedUploadsBanner');
+    if (failedUploads) failedUploads.style.display = 'none';
+
+    const fileManagerCard = document.getElementById('file-table')?.closest('.card');
+    if (fileManagerCard) fileManagerCard.style.display = 'none';
+
+    const optimizer = document.getElementById('uploadModal');
+    optimizer.classList.add('open', 'standalone-optimizer');
+
+    const footerCard = Array.from(document.querySelectorAll('.card')).find(card =>
+      card.textContent.includes('Unofficial standalone adaptation')
+    );
+    if (footerCard) {
+      footerCard.classList.add('standalone-footer');
+      optimizer.insertAdjacentElement('afterend', footerCard);
+    }
+
     const modalHeading = document.querySelector('#uploadModal h3');
-    if (modalHeading) modalHeading.textContent = '📖 Optimize EPUB locally';
+    if (modalHeading) modalHeading.textContent = 'Optimize EPUBs for CrossPoint';
 
     const pathInfo = document.querySelector('#uploadModal .file-info');
     if (pathInfo) {
-      // Keep this upstream-owned element: openUploadModal() writes to it.
-      pathInfo.innerHTML = 'Select one or more EPUB files. Processing stays in this browser and the optimized files are downloaded.<strong id="uploadPathDisplay" hidden></strong>';
+      // Keep the hidden upstream element because the original modal helper references it.
+      pathInfo.innerHTML = 'Choose EPUB files below. They stay on this device while the browser optimizes and downloads them.<strong id="uploadPathDisplay" hidden></strong>';
     }
 
-    const actionButton = document.getElementById('uploadBtn');
-    if (actionButton) actionButton.textContent = 'Optimize & Download';
+    const fileInput = document.getElementById('fileInput');
+    fileInput.accept = '.epub,application/epub+zip';
+    document.querySelector('.drop-zone-hint').textContent = 'Drop EPUB files here — or choose files';
 
     const originalToggle = window.toggleConvertOptions;
     window.toggleConvertOptions = function toggleConvertOptionsLocally() {
+      const checkbox = document.getElementById('convertBeforeUpload');
+      if (checkbox.dataset.alwaysEnabled === 'true') checkbox.checked = true;
       originalToggle();
-      const button = document.getElementById('uploadBtn');
-      button.textContent = document.getElementById('convertBeforeUpload').checked
-        ? 'Optimize & Download'
-        : 'Enable Optimize EPUB';
+      document.getElementById('uploadBtn').textContent = 'Optimize & Download';
+      document.getElementById('startConversionBtn').textContent = 'Optimize & Download';
     };
+
+    const optimizeCheckbox = document.getElementById('convertBeforeUpload');
+    optimizeCheckbox.dataset.alwaysEnabled = 'true';
+    optimizeCheckbox.checked = true;
+    optimizeCheckbox.disabled = true;
+    restoreUploadSettingsFromStorage();
+    optimizeCheckbox.checked = true;
+    optimizeCheckbox.closest('label').querySelector('span').textContent = 'Optimization enabled';
+
+    document.getElementById('convertOptions').style.display = 'block';
+    toggleConvertOptions();
+
+    const actionButton = document.getElementById('uploadBtn');
+    actionButton.textContent = 'Optimize & Download';
+
+    const startButton = document.getElementById('startConversionBtn');
+    startButton.textContent = 'Optimize & Download';
+
+    const cancelButton = document.querySelector('#uploadModal .delete-btn-cancel');
+    cancelButton.id = 'localCancelButton';
+    cancelButton.textContent = 'Cancel optimization';
+    cancelButton.style.display = 'none';
   });
 })();

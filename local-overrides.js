@@ -43,8 +43,6 @@
     const actionButton = document.getElementById('uploadBtn');
     progressContainer.style.display = 'block';
     actionButton.disabled = true;
-    const cancelButton = document.getElementById('localCancelButton');
-    if (cancelButton) cancelButton.style.display = 'block';
 
     try {
       for (let index = 0; index < files.length; index++) {
@@ -82,141 +80,58 @@
       document.getElementById('uploadModalClose').classList.remove('disabled');
       fileInput.disabled = false;
       actionButton.disabled = false;
-      if (cancelButton) cancelButton.style.display = 'none';
     }
   };
 
   document.addEventListener('DOMContentLoaded', () => {
-    document.title = 'CrossPoint EPUB Optimizer';
-    document.body.classList.add('standalone-page');
+    document.title = 'CrossPoint EPUB Optimizer (Local)';
+    document.body.classList.add('optimizer-only');
 
     const heading = document.querySelector('h1');
-    if (heading) {
-      heading.textContent = 'Optimize EPUBs for CrossPoint';
-      heading.insertAdjacentHTML('beforebegin', '<span class="standalone-kicker">CrossPoint Reader utility</span>');
-      heading.insertAdjacentHTML('afterend', `
-        <p class="standalone-intro">Resize images and prepare EPUB files for CrossPoint X3 and X4 readers. Processing happens in this browser.</p>
-        <p class="standalone-meta">EPUB in&nbsp;&nbsp;/&nbsp;&nbsp;optimized EPUB out</p>
-      `);
-    }
-
-    const deviceNavigation = document.querySelector('.nav-links');
-    if (deviceNavigation) deviceNavigation.style.display = 'none';
-
-    const fileManagerHeader = document.querySelector('.page-header');
-    if (fileManagerHeader) fileManagerHeader.style.display = 'none';
-
-    const failedUploads = document.getElementById('failedUploadsBanner');
-    if (failedUploads) failedUploads.style.display = 'none';
+    if (heading) heading.textContent = 'CrossPoint EPUB Optimizer (Local)';
 
     const fileManagerCard = document.getElementById('file-table')?.closest('.card');
     if (fileManagerCard) fileManagerCard.style.display = 'none';
 
     const optimizer = document.getElementById('uploadModal');
-    optimizer.classList.add('open', 'standalone-optimizer');
+    optimizer.classList.add('open', 'inline-optimizer');
 
-    const footerCard = Array.from(document.querySelectorAll('.card')).find(card =>
+    const footer = Array.from(document.querySelectorAll('.card')).find(card =>
       card.textContent.includes('Unofficial standalone adaptation')
     );
-    if (footerCard) {
-      footerCard.classList.add('standalone-footer');
-      optimizer.insertAdjacentElement('afterend', footerCard);
-    }
+    if (footer) optimizer.insertAdjacentElement('afterend', footer);
 
     const modalHeading = document.querySelector('#uploadModal h3');
-    if (modalHeading) modalHeading.textContent = 'Choose your books';
+    if (modalHeading) modalHeading.textContent = '📖 Optimize EPUB locally';
 
     const pathInfo = document.querySelector('#uploadModal .file-info');
     if (pathInfo) {
-      // Keep the hidden upstream element because the original modal helper references it.
-      pathInfo.innerHTML = 'Select one or more EPUB files. Each optimized copy downloads when it is ready.<strong id="uploadPathDisplay" hidden></strong>';
+      // Keep this upstream-owned element: openUploadModal() writes to it.
+      pathInfo.innerHTML = 'Select one or more EPUB files. Processing stays in this browser and the optimized files are downloaded.<strong id="uploadPathDisplay" hidden></strong>';
     }
 
-    const fileInput = document.getElementById('fileInput');
-    fileInput.accept = '.epub,application/epub+zip';
-    document.querySelector('.drop-zone-hint').textContent = 'Drop EPUB files here or choose files';
+    const actionButton = document.getElementById('uploadBtn');
+    if (actionButton) actionButton.textContent = 'Optimize & Download';
 
     const originalToggle = window.toggleConvertOptions;
     window.toggleConvertOptions = function toggleConvertOptionsLocally() {
       const checkbox = document.getElementById('convertBeforeUpload');
-      if (checkbox.dataset.alwaysEnabled === 'true') checkbox.checked = true;
+      checkbox.checked = true;
       originalToggle();
+      document.getElementById('convertWarning').style.display = 'none';
       document.getElementById('uploadBtn').textContent = 'Optimize & Download';
       document.getElementById('startConversionBtn').textContent = 'Optimize & Download';
     };
 
     const optimizeCheckbox = document.getElementById('convertBeforeUpload');
-    optimizeCheckbox.dataset.alwaysEnabled = 'true';
-    optimizeCheckbox.checked = true;
-    optimizeCheckbox.disabled = true;
     restoreUploadSettingsFromStorage();
     optimizeCheckbox.checked = true;
-    optimizeCheckbox.closest('label').querySelector('span').textContent = 'Output settings';
-
-    const advancedToggle = document.getElementById('advancedOptionsToggle');
-    advancedToggle.setAttribute('role', 'button');
-    advancedToggle.setAttribute('tabindex', '0');
-    advancedToggle.setAttribute('aria-controls', 'advancedSettingsContent');
-    advancedToggle.setAttribute('aria-expanded', 'false');
-    advancedToggle.querySelector('.advanced-options-text').textContent = 'Adjust options';
-    advancedToggle.addEventListener('keydown', event => {
-      if (event.key === 'Enter' || event.key === ' ') {
-        event.preventDefault();
-        advancedToggle.click();
-      }
-    });
-    advancedToggle.addEventListener('click', () => {
-      requestAnimationFrame(() => {
-        advancedToggle.setAttribute(
-          'aria-expanded',
-          document.getElementById('advancedSettingsContent').classList.contains('visible') ? 'true' : 'false'
-        );
-      });
-    });
-
-    const advancedSettings = document.getElementById('advancedSettingsContent');
-    const renameSetting = document.getElementById('renameFromMetadataToggle')?.closest('.advanced-setting-row');
-    if (renameSetting) advancedSettings.prepend(renameSetting);
-
-    document.getElementById('convertSettings').innerHTML = `
-      <span>Grayscale images</span>
-      <span id="convertSizeSummary">Max 480 x 800 px</span>
-      <span>85% JPEG</span>
-      <span>SVG fixes</span>
-    `;
-
-    const settingLabels = [
-      ['renameFromMetadataToggle', 'Rename from book metadata'],
-      ['autoCropToggle', 'Auto-crop margins'],
-      ['export-log-checkbox', 'Automatically download the conversion log'],
-      ['rememberUploadSettings', 'Remember settings in this browser']
-    ];
-    settingLabels.forEach(([id, label]) => {
-      document.getElementById(id)?.setAttribute('aria-label', label);
-    });
-
-    document.querySelector('.quality-row .setting-title').textContent = 'JPEG quality';
-    document.querySelector('#deviceSettingRow .setting-title').textContent = 'Target device';
-    document.querySelector('#rotationSettingRow .setting-title').textContent = 'Rotation direction';
-    document.querySelector('#overlapSettingRow .setting-title').textContent = 'Minimum overlap';
-    document.getElementById('autoCropToggle').closest('.advanced-setting-row').querySelector('.setting-title').textContent = 'Auto-crop margins';
-    document.querySelector('#log-section .log-title').textContent = 'Conversion log';
-
-    document.getElementById('progress-container').setAttribute('role', 'status');
-    document.getElementById('progress-container').setAttribute('aria-live', 'polite');
+    optimizeCheckbox.disabled = true;
 
     document.getElementById('convertOptions').style.display = 'block';
     toggleConvertOptions();
 
-    const actionButton = document.getElementById('uploadBtn');
-    actionButton.textContent = 'Optimize & Download';
-
-    const startButton = document.getElementById('startConversionBtn');
-    startButton.textContent = 'Optimize & Download';
-
-    const cancelButton = document.querySelector('#uploadModal .delete-btn-cancel');
-    cancelButton.id = 'localCancelButton';
-    cancelButton.textContent = 'Cancel optimization';
-    cancelButton.style.display = 'none';
+    document.getElementById('advancedSettingsContent').classList.add('visible');
+    document.getElementById('advancedOptionsArrow').classList.add('expanded');
   });
 })();

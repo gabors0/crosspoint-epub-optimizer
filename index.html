@@ -3,9 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CrossPoint EPUB Optimizer</title>
-  <link rel="icon" href="data:,">
-  <link rel="stylesheet" href="./standalone.css?v=2">
+  <title>CrossPoint EPUB Optimizer (Local)</title>
   <script src="./local-shim.js"></script>
   <script src="./js/jszip.min.js"></script>
   <style>
@@ -1501,6 +1499,24 @@
     .log-summary-table .increased {
       color: #f39c12;
     }
+    body.optimizer-only .nav-links,
+    body.optimizer-only .page-header,
+    body.optimizer-only #failedUploadsBanner,
+    body.optimizer-only #uploadModal .modal-close,
+    body.optimizer-only #uploadModal .delete-btn-cancel {
+      display: none;
+    }
+    body.optimizer-only #uploadModal.inline-optimizer {
+      display: block;
+      position: static;
+      background: transparent;
+    }
+    body.optimizer-only #uploadModal.inline-optimizer .modal {
+      width: auto;
+      max-width: none;
+      max-height: none;
+      overflow: visible;
+    }
   </style>
 </head>
 <body>
@@ -1553,7 +1569,7 @@
     Unofficial standalone adaptation of
     <a href="https://github.com/crosspoint-reader/crosspoint-reader" rel="noopener noreferrer">CrossPoint Reader</a>
     • <a href="https://github.com/crosspoint-reader/crosspoint-reader/blob/master/LICENSE" rel="noopener noreferrer">MIT License</a>
-    • <a href="https://github.com/gabors0/crosspoint-epub-optimizer" rel="noopener noreferrer">Standalone source</a>
+    • <a href="https://github.com/gabors0/crosspoint-epub-optimizer" rel="noopener noreferrer">GitHub</a>
   </p>
 </div>
 
@@ -3444,7 +3460,7 @@ function applyDeviceTarget() {
 
   const summary = document.getElementById('convertSizeSummary');
   if (summary) {
-    summary.textContent = `Max ${profile.width} x ${profile.height} px`;
+    summary.textContent = `📏 Max ${profile.width}×${profile.height}px`;
   }
   document.querySelectorAll('.device-btn').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.value === DEVICE_TARGET);
@@ -6174,6 +6190,6 @@ function retryAllFailedUploads() {
   }
   hydrate();
 </script>
-<script src="./local-overrides.js?v=4"></script>
+<script src="./local-overrides.js?v=2"></script>
 </body>
 </html>

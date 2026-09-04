@@ -27,9 +27,8 @@ for the page and its static assets.
 ./start.sh
 ```
 
-Open <http://127.0.0.1:4175>, choose one or more EPUB files, and click
-**Optimize & Download**. Optimization is always enabled; optional tuning is
-available under **Advanced Mode**.
+Open <http://127.0.0.1:4175>, click **Open Optimizer**, choose one or more EPUB
+files, enable **Optimize EPUB**, and click **Optimize & Download**.
 
 To make the page reachable from another device on the local network:
 

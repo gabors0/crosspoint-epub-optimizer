@@ -8,6 +8,10 @@ a normal browser download.
 This project is not affiliated with or endorsed by the CrossPoint Reader
 project or any device manufacturer.
 
+## Live site
+
+<https://epub.gs0.me>
+
 ## Privacy
 
 EPUB processing happens entirely inside the browser. Selected EPUB contents are
